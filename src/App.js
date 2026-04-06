@@ -233,28 +233,28 @@ export default function App() {
 
   /* Manual run trigger */
   const startAgent = async (finalInstructions) => {
-    setIsRunning(true);
-    setLogs([]);
-    setCurrentAction('Initializing agent...');
-    try {
-      const res = await fetch(`${API}/api/agent/run`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          repoOwner: selectedRepo.split('/')[0],
-          repoName: selectedRepo.split('/')[1],
-          instructions: finalInstructions
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to start agent');
-      fetchJobs(); // Immediate refresh
-    } catch (err) {
-      setLogs([{ message: err.message, type: 'error', timestamp: new Date().toISOString() }]);
-      setIsRunning(false);
-      setCurrentAction('');
-    }
-  };
+  setIsRunning(true);
+  setLogs([]);
+  setCurrentAction('Initializing agent...');
+  try {
+    const repoUrl = `https://github.com/${selectedRepo}`;
+    const res = await fetch(`${API}/api/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        repoUrl,
+        instructions: finalInstructions
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to start agent');
+    fetchJobs(); // Immediate refresh
+  } catch (err) {
+    setLogs([{ message: err.message, type: 'error', timestamp: new Date().toISOString() }]);
+    setIsRunning(false);
+    setCurrentAction('');
+  }
+};
 
   /* Copy terminal logs to clipboard */
   const copyLogs = async () => {
